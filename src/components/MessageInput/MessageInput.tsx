@@ -38,6 +38,13 @@ export function MessageInput({
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    // Cmd+Enter (Mac) or Ctrl+Enter (Windows/Linux) to send
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault()
+      handleSend()
+      return
+    }
+    // Enter without modifiers also sends (except Shift for new line)
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()

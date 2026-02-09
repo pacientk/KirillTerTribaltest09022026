@@ -1,31 +1,19 @@
-export type Status = 'idle' | 'typing' | 'loading' | 'generating' | 'error' | 'success'
+// Re-export from new location for backward compatibility
+export type {
+  Message,
+  MessageRole,
+  Status,
+  Attachment,
+  FileUploadResult,
+  Conversation,
+  PreviewHistoryItem,
+} from '../features/chat/models'
 
-export interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  attachments?: Attachment[]
-  createdAt: Date
-}
-
-export interface Attachment {
-  id: string
-  name: string
-  type: 'image' | 'code'
-  mimeType: string
-  url: string
-  content?: string
-}
-
-export interface FileUploadResult {
-  file: File
-  preview: string
-  type: 'image' | 'code'
-}
-
-export const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/svg+xml']
-export const ALLOWED_CODE_EXTENSIONS = ['.tsx', '.ts', '.json', '.css']
+export {
+  ALLOWED_IMAGE_TYPES,
+  ALLOWED_CODE_EXTENSIONS,
+} from '../features/chat/models'
 
 // Re-export orchestrator and agent types for convenience
-export type { OrchestratorProgress, OrchestratorResponse } from '../orchestrator/types'
-export type { AgentType, AgentConfig } from '../agents/types'
+export type { OrchestratorProgress, OrchestratorResponse } from '../features/chat/orchestrator/types'
+export type { AgentType, AgentConfig } from '../features/chat/agents/types'

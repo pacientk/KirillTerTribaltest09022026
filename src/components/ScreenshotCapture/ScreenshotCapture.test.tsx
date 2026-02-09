@@ -1,15 +1,15 @@
 import { jest, describe, it, expect, beforeEach } from '@jest/globals'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { ScreenshotCapture } from './ScreenshotCapture'
 
-// Mock useScreenshot hook
-const mockCapture = jest.fn<() => Promise<void>>()
-const mockClear = jest.fn<() => void>()
+// Mock values
 let mockScreenshot: { file: File; preview: string; type: 'image' } | null = null
 let mockIsCapturing = false
 let mockError: string | null = null
+const mockCapture = jest.fn<() => Promise<void>>()
+const mockClear = jest.fn<() => void>()
 
-jest.mock('../../hooks/useScreenshot', () => ({
+// Mock the hook before importing the component
+jest.unstable_mockModule('../../hooks/useScreenshot', () => ({
   useScreenshot: () => ({
     screenshot: mockScreenshot,
     isCapturing: mockIsCapturing,
@@ -18,6 +18,9 @@ jest.mock('../../hooks/useScreenshot', () => ({
     clear: mockClear,
   }),
 }))
+
+// Import component after mock is set up
+const { ScreenshotCapture } = await import('./ScreenshotCapture')
 
 describe('ScreenshotCapture', () => {
   const mockOnCapture = jest.fn<(s: unknown) => void>()

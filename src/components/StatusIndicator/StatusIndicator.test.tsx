@@ -1,6 +1,7 @@
+import { describe, it, expect } from '@jest/globals'
 import { render, screen } from '@testing-library/react'
 import { StatusIndicator } from './StatusIndicator'
-import { Status } from '../../types'
+import type { Status } from '../../types'
 
 describe('StatusIndicator', () => {
   it('renders nothing when status is idle', () => {

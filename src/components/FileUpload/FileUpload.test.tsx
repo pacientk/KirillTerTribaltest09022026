@@ -1,9 +1,10 @@
 import { jest, describe, it, expect, beforeEach } from '@jest/globals'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { FileUpload } from './FileUpload'
+import type { FileUploadResult } from '../../types'
 
 describe('FileUpload', () => {
-  const mockOnUpload = jest.fn<(files: unknown[]) => void>()
+  const mockOnUpload = jest.fn<(files: FileUploadResult[]) => void>()
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -45,7 +46,7 @@ describe('FileUpload', () => {
 
     await waitFor(() => {
       expect(mockOnUpload).toHaveBeenCalled()
-      const uploadedFiles = mockOnUpload.mock.calls[0][0]
+      const uploadedFiles = mockOnUpload.mock.calls[0][0] as FileUploadResult[]
       expect(uploadedFiles[0].type).toBe('image')
     })
   })
@@ -64,7 +65,7 @@ describe('FileUpload', () => {
 
     await waitFor(() => {
       expect(mockOnUpload).toHaveBeenCalled()
-      const uploadedFiles = mockOnUpload.mock.calls[0][0]
+      const uploadedFiles = mockOnUpload.mock.calls[0][0] as FileUploadResult[]
       expect(uploadedFiles[0].type).toBe('code')
     })
   })

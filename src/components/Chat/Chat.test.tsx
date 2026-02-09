@@ -1,16 +1,18 @@
 import { jest, describe, it, expect, beforeEach } from '@jest/globals'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Chat } from './Chat'
-import * as api from '../../services/api'
 
-jest.mock('../../services/api', () => ({
-  sendMessage: jest.fn<typeof api.sendMessage>(),
+// Mock the api module before importing Chat
+const mockSendMessage = jest.fn<(content: string, attachments?: unknown[]) => Promise<string>>()
+
+jest.unstable_mockModule('../../services/api', () => ({
+  sendMessage: mockSendMessage,
 }))
 
-describe('Chat', () => {
-  const mockSendMessage = api.sendMessage as jest.MockedFunction<typeof api.sendMessage>
+// Import Chat after mock is set up
+const { Chat } = await import('./Chat')
 
+describe('Chat', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockSendMessage.mockResolvedValue('AI response')

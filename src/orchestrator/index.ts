@@ -1,5 +1,2 @@
-export * from './types'
-export { ContextManager, contextManager } from './ContextManager'
-export { TaskCache, taskCache } from './TaskCache'
-export { TaskQueue, taskQueue } from './TaskQueue'
-export { Orchestrator } from './Orchestrator'
+// Re-export from new location for backward compatibility
+export * from '../features/chat/orchestrator'

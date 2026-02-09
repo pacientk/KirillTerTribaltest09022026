@@ -1,0 +1,30 @@
+.ui-preview {
+  max-height: 500px;
+}
+
+.preview-content {
+  max-height: calc(500px - 48px);
+  overflow-y: auto;
+}
+
+.tab-btn {
+  transition: all 0.2s ease-in-out;
+}
+
+pre {
+  font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+  line-height: 1.5;
+}
+
+pre code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.copy-btn {
+  transition: all 0.2s ease-in-out;
+}
+
+.copy-btn:active {
+  transform: scale(0.95);
+}

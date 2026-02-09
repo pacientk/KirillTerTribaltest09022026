@@ -1,0 +1,20 @@
+.capture-btn {
+  transition: all 0.2s ease-in-out;
+}
+
+.capture-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.error-message {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

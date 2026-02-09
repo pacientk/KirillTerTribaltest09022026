@@ -73,6 +73,7 @@ export interface UseChatControllerReturn {
   setShowUpload: (show: boolean) => void
   toggleTemplates: () => void
   setShowTemplates: (show: boolean) => void
+  clearMessages: () => void
 }
 
 export function useChatController(): UseChatControllerReturn {
@@ -102,6 +103,7 @@ export function useChatController(): UseChatControllerReturn {
   const setShowUpload = useChatStore((s) => s.setShowUpload)
   const toggleTemplates = useChatStore((s) => s.toggleTemplates)
   const setShowTemplates = useChatStore((s) => s.setShowTemplates)
+  const clearMessages = useChatStore((s) => s.clearMessages)
 
   // Orchestrator hook
   const orchestrator = useOrchestrator({
@@ -245,5 +247,6 @@ export function useChatController(): UseChatControllerReturn {
     setShowUpload,
     toggleTemplates,
     setShowTemplates,
+    clearMessages,
   }
 }

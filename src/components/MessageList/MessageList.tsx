@@ -1,6 +1,66 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import ReactMarkdown from 'react-markdown'
+import { Bot, User, Copy, Check, Eye } from 'lucide-react'
 import { MessageListProps, MessageItemProps } from './types'
 import './styles.css'
+
+interface CodeBlockProps {
+  language: string
+  code: string
+}
+
+function CodeBlock({ language, code }: CodeBlockProps) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = useCallback(async () => {
+    await navigator.clipboard.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }, [code])
+
+  return (
+    <div className="code-block-wrapper">
+      <div className="code-header">
+        <span className="language">{language || 'code'}</span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className={`copy-button ${copied ? 'copied' : ''}`}
+        >
+          {copied ? (
+            <>
+              <Check className="w-3.5 h-3.5" />
+              Copied
+            </>
+          ) : (
+            <>
+              <Copy className="w-3.5 h-3.5" />
+              Copy
+            </>
+          )}
+        </button>
+      </div>
+      <pre
+        className="m-0 rounded-t-none rounded-b-lg overflow-hidden"
+        style={{
+          background: 'hsl(var(--code-bg))',
+          border: '1px solid hsl(var(--code-border))',
+          borderTop: 'none',
+        }}
+      >
+        <code
+          className="block p-4 text-xs overflow-x-auto"
+          style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            color: 'hsl(var(--foreground))',
+          }}
+        >
+          {code}
+        </code>
+      </pre>
+    </div>
+  )
+}
 
 function hasCodeBlock(content: string): boolean {
   return /```(?:tsx?|jsx?|javascript)/.test(content)
@@ -8,14 +68,7 @@ function hasCodeBlock(content: string): boolean {
 
 function MessageItem({ message, onSelectPreview, isSelected }: MessageItemProps) {
   const isUser = message.role === 'user'
-  const [copied, setCopied] = useState(false)
   const showActions = !isUser && hasCodeBlock(message.content)
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(message.content)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
 
   const handleShowPreview = () => {
     onSelectPreview?.(message.id)
@@ -23,20 +76,36 @@ function MessageItem({ message, onSelectPreview, isSelected }: MessageItemProps)
 
   return (
     <div
-      className={`message-item flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}
+      className={`flex items-start gap-3 mb-4 ${isUser ? 'flex-row-reverse' : ''}`}
       data-testid={`message-${message.id}`}
     >
+      {/* Avatar */}
       <div
-        className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-          isUser
-            ? 'bg-blue-600 text-white rounded-br-sm'
-            : `bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-sm ${isSelected ? 'ring-2 ring-emerald-500' : ''}`
-        }`}
+        className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+        style={{
+          background: isUser ? 'hsl(var(--primary))' : 'hsl(var(--secondary))',
+        }}
       >
+        {isUser ? (
+          <User className="w-5 h-5 text-white" />
+        ) : (
+          <Bot className="w-5 h-5" style={{ color: 'hsl(var(--primary))' }} />
+        )}
+      </div>
+
+      {/* Message content */}
+      <div
+        className={`max-w-[80%] rounded-lg px-4 py-3 ${isSelected ? 'ring-2 ring-green-500' : ''}`}
+        style={{
+          background: isUser ? 'hsl(var(--primary))' : 'hsl(var(--chat-assistant-bg))',
+          color: isUser ? 'white' : 'hsl(var(--foreground))',
+        }}
+      >
+        {/* Attachments */}
         {message.attachments && message.attachments.length > 0 && (
-          <div className="attachments mb-2 flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-2">
             {message.attachments.map((attachment) => (
-              <div key={attachment.id} className="attachment">
+              <div key={attachment.id}>
                 {attachment.type === 'image' ? (
                   <img
                     src={attachment.url}
@@ -44,62 +113,75 @@ function MessageItem({ message, onSelectPreview, isSelected }: MessageItemProps)
                     className="max-w-[200px] max-h-[150px] rounded object-cover"
                   />
                 ) : (
-                  <div className="code-attachment bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-xs">
-                    📄 {attachment.name}
+                  <div
+                    className="px-2 py-1 rounded text-xs"
+                    style={{ background: 'hsl(var(--secondary))' }}
+                  >
+                    {attachment.name}
                   </div>
                 )}
               </div>
             ))}
           </div>
         )}
-        <div className="whitespace-pre-wrap break-words">{message.content}</div>
 
-        {/* Action buttons for assistant messages with code */}
+        {/* Message text with markdown */}
+        <div className="prose-chat">
+          <ReactMarkdown
+            components={{
+              code: ({ className, children, ...props }) => {
+                const match = /language-(\w+)/.exec(className || '')
+                const isCodeBlock = match || (typeof children === 'string' && children.includes('\n'))
+
+                if (isCodeBlock && match) {
+                  return (
+                    <CodeBlock
+                      language={match[1]}
+                      code={String(children).replace(/\n$/, '')}
+                    />
+                  )
+                }
+
+                return (
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                )
+              },
+              pre: ({ children }) => <>{children}</>,
+            }}
+          >
+            {message.content}
+          </ReactMarkdown>
+        </div>
+
+        {/* Action buttons */}
         {showActions && (
-          <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              onClick={handleCopy}
-              className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-              title="Copy message"
-            >
-              {copied ? (
-                <>
-                  <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Copied
-                </>
-              ) : (
-                <>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  Copy
-                </>
-              )}
-            </button>
+          <div
+            className="flex items-center gap-2 mt-3 pt-3"
+            style={{ borderTop: '1px solid hsl(var(--border))' }}
+          >
             <button
               type="button"
               onClick={handleShowPreview}
-              className={`flex items-center gap-1 px-2 py-1 text-xs rounded transition-colors ${
-                isSelected
-                  ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+              className={`flex items-center gap-1.5 px-2 py-1 text-xs rounded transition-colors ${
+                isSelected ? 'text-green-400' : ''
               }`}
+              style={{
+                color: isSelected ? 'hsl(var(--accent-green))' : 'hsl(var(--muted-foreground))',
+              }}
               title="Show in preview"
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
+              <Eye className="w-3.5 h-3.5" />
               {isSelected ? 'Showing' : 'Preview'}
             </button>
           </div>
         )}
 
+        {/* Timestamp */}
         <div
-          className={`text-xs mt-1 ${isUser ? 'text-blue-200' : 'text-gray-500 dark:text-gray-400'}`}
+          className="text-xs mt-2"
+          style={{ color: isUser ? 'rgba(255,255,255,0.7)' : 'hsl(var(--muted-foreground))' }}
         >
           {message.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
@@ -125,9 +207,10 @@ export function MessageList({ messages, className = '', onSelectPreview, selecte
       aria-live="polite"
     >
       {messages.length === 0 ? (
-        <div className="empty-state flex flex-col items-center justify-center h-full text-gray-500">
-          <div className="text-4xl mb-2">💬</div>
-          <p>No messages yet. Start a conversation!</p>
+        <div className="flex flex-col items-center justify-center h-full" style={{ color: 'hsl(var(--muted-foreground))' }}>
+          <Bot className="w-12 h-12 mb-4" style={{ color: 'hsl(var(--border))' }} />
+          <p className="text-lg font-medium mb-1">No messages yet</p>
+          <p className="text-sm">Start a conversation to generate UI components</p>
         </div>
       ) : (
         messages.map((message) => (

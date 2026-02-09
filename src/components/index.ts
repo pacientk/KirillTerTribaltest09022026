@@ -19,3 +19,5 @@ export type { StatusIndicatorProps } from './StatusIndicator'
 
 export { UIPreview } from './UIPreview'
 export type { UIPreviewProps } from './UIPreview'
+
+export { TypingIndicator } from './TypingIndicator'

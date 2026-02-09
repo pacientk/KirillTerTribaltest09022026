@@ -30,20 +30,20 @@ function Button() {
 
   it('renders preview and code tabs', () => {
     render(<UIPreview code={sampleCode} />)
-    expect(screen.getByRole('tab', { name: 'Preview' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: 'Code' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: /Preview/i })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: /Code/i })).toBeInTheDocument()
   })
 
   it('shows preview tab by default', () => {
     render(<UIPreview code={sampleCode} />)
-    const previewTab = screen.getByRole('tab', { name: 'Preview' })
+    const previewTab = screen.getByRole('tab', { name: /Preview/i })
     expect(previewTab).toHaveAttribute('aria-selected', 'true')
   })
 
   it('switches to code tab when clicked', () => {
     render(<UIPreview code={sampleCode} />)
 
-    const codeTab = screen.getByRole('tab', { name: 'Code' })
+    const codeTab = screen.getByRole('tab', { name: /Code/i })
     fireEvent.click(codeTab)
 
     expect(codeTab).toHaveAttribute('aria-selected', 'true')
@@ -53,7 +53,7 @@ function Button() {
   it('extracts code from markdown code blocks', () => {
     render(<UIPreview code={markdownCode} />)
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Code' }))
+    fireEvent.click(screen.getByRole('tab', { name: /Code/i }))
 
     // Should show extracted code, not the full markdown
     expect(screen.getByText(/function Button/)).toBeInTheDocument()
@@ -63,9 +63,9 @@ function Button() {
   it('shows copy button in code view', () => {
     render(<UIPreview code={sampleCode} />)
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Code' }))
+    fireEvent.click(screen.getByRole('tab', { name: /Code/i }))
 
-    expect(screen.getByText('Copy Code')).toBeInTheDocument()
+    expect(screen.getByText('Copy')).toBeInTheDocument()
   })
 
   it('copies code to clipboard when copy button is clicked', () => {
@@ -78,8 +78,8 @@ function Button() {
 
     render(<UIPreview code={sampleCode} />)
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Code' }))
-    fireEvent.click(screen.getByText('Copy Code'))
+    fireEvent.click(screen.getByRole('tab', { name: /Code/i }))
+    fireEvent.click(screen.getByText('Copy'))
 
     expect(mockWriteText).toHaveBeenCalled()
   })

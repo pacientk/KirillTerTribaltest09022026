@@ -21,7 +21,7 @@ const mockMessages: Message[] = [
 describe('MessageList', () => {
   it('renders empty state when no messages', () => {
     render(<MessageList messages={[]} />)
-    expect(screen.getByText('No messages yet. Start a conversation!')).toBeInTheDocument()
+    expect(screen.getByText('No messages yet')).toBeInTheDocument()
   })
 
   it('renders messages', () => {
@@ -33,13 +33,13 @@ describe('MessageList', () => {
   it('renders user messages with correct styling', () => {
     render(<MessageList messages={mockMessages} />)
     const userMessage = screen.getByTestId('message-1')
-    expect(userMessage).toHaveClass('justify-end')
+    expect(userMessage).toHaveClass('flex-row-reverse')
   })
 
-  it('renders assistant messages with correct styling', () => {
+  it('renders assistant messages without reverse styling', () => {
     render(<MessageList messages={mockMessages} />)
     const assistantMessage = screen.getByTestId('message-2')
-    expect(assistantMessage).toHaveClass('justify-start')
+    expect(assistantMessage).not.toHaveClass('flex-row-reverse')
   })
 
   it('has correct aria attributes', () => {
@@ -59,7 +59,7 @@ describe('MessageList', () => {
       createdAt: new Date(),
     }
     render(<MessageList messages={[messageWithAttachment]} />)
-    expect(screen.getByText('📄 test.tsx')).toBeInTheDocument()
+    expect(screen.getByText('test.tsx')).toBeInTheDocument()
   })
 
   it('applies custom className', () => {

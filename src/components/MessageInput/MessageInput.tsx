@@ -1,4 +1,5 @@
 import { useState, useRef, KeyboardEvent } from 'react'
+import { SendHorizonal, X } from 'lucide-react'
 import { MessageInputProps } from './types'
 import './styles.css'
 
@@ -68,13 +69,14 @@ export function MessageInput({
   }
 
   return (
-    <div className={`message-input border-t border-gray-200 dark:border-gray-700 p-4 ${className}`}>
+    <div className={`message-input p-4 ${className}`}>
       {attachments.length > 0 && (
-        <div className="attachments-preview flex flex-wrap gap-2 mb-2">
+        <div className="flex flex-wrap gap-2 mb-3">
           {attachments.map((attachment, index) => (
             <div
               key={index}
-              className="attachment-preview relative bg-gray-100 dark:bg-gray-800 rounded p-2 flex items-center gap-2"
+              className="relative rounded-lg p-2 flex items-center gap-2"
+              style={{ background: 'hsl(var(--secondary))' }}
             >
               {attachment.type === 'image' ? (
                 <img
@@ -83,22 +85,25 @@ export function MessageInput({
                   className="w-12 h-12 object-cover rounded"
                 />
               ) : (
-                <span className="text-sm">📄 {attachment.file.name}</span>
+                <span className="text-sm" style={{ color: 'hsl(var(--foreground))' }}>
+                  {attachment.file.name}
+                </span>
               )}
               <button
                 type="button"
                 onClick={() => removeAttachment(index)}
-                className="remove-btn absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600"
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center"
+                style={{ background: 'hsl(var(--accent-red))', color: 'white' }}
                 aria-label={`Remove ${attachment.file.name}`}
               >
-                ×
+                <X className="w-3 h-3" />
               </button>
             </div>
           ))}
         </div>
       )}
 
-      <div className="flex gap-2 items-end">
+      <div className="flex gap-3 items-end">
         <textarea
           ref={textareaRef}
           value={value}
@@ -107,24 +112,27 @@ export function MessageInput({
           disabled={disabled}
           placeholder={placeholder}
           rows={1}
-          className="flex-1 resize-none rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-2 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 resize-none rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            background: 'hsl(var(--secondary))',
+            border: '1px solid hsl(var(--border))',
+            color: 'hsl(var(--foreground))',
+            '--tw-ring-color': 'hsl(var(--primary))',
+          } as React.CSSProperties}
           aria-label="Message input"
         />
         <button
           type="button"
           onClick={handleSend}
           disabled={disabled || (!value.trim() && attachments.length === 0)}
-          className="send-btn px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            background: 'hsl(var(--primary))',
+            color: 'white',
+          }}
           aria-label="Send message"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-            />
-          </svg>
+          <SendHorizonal className="w-5 h-5" />
         </button>
       </div>
     </div>

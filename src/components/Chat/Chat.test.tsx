@@ -27,7 +27,7 @@ describe('Chat', () => {
 
   it('shows empty state initially', () => {
     render(<Chat />)
-    expect(screen.getByText('No messages yet. Start a conversation!')).toBeInTheDocument()
+    expect(screen.getByText('No messages yet')).toBeInTheDocument()
   })
 
   it('sends message and displays response', async () => {
